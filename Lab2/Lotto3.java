@@ -5,7 +5,7 @@ import java.util.Random;
 public class Lotto3 {
     public static void main(String[] args) {
         ArrayList<Integer> typy = new ArrayList<>();
-        Collections.addAll(typy, 1, 2, 3, 4, 5, 6);
+        Collections.addAll(typy, 1, 37, 3, 15, 5, 26);
         Collections.sort(typy);
 
         long liczbaLosowan = 0;
