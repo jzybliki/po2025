@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/samochod/pom.xml" />
         <option value="$PROJECT_DIR$/symulator/pom.xml" />
+        <option value="$PROJECT_DIR$/SamochodGUI/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
