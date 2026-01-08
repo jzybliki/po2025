@@ -176,7 +176,7 @@
     </left>
 
     <center>
-        <AnchorPane fx:id="mapPane" style="-fx-background-color: #e0e0e0; -fx-border-color: gray; -fx-border-width: 2;">
+        <AnchorPane fx:id="mapPane" style="-fx-background-color: #90EE90; -fx-border-color: gray; -fx-border-width: 2;">
             <children>
                 <Label fx:id="mapLabel" layoutX="20" layoutY="10" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #555;" text="Symulacja Jazdy" />
                 <ImageView fx:id="carImageView" fitHeight="60" fitWidth="100" layoutX="20" layoutY="100" pickOnBounds="true" preserveRatio="true">

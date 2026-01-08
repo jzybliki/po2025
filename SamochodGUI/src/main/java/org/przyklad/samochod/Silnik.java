@@ -5,16 +5,21 @@ public class Silnik extends Komponent {
     private int obroty;
     private boolean wlaczony;
 
-    public Silnik(String producent, String model, int maxObroty) {
-        super(producent, model);
+    public Silnik(String producent, String model, int maxObroty, double waga, double cena) {
+        super(producent, model, waga, cena);
         this.maxObroty = maxObroty;
         this.obroty = 0;
         this.wlaczony = false;
     }
 
+    // Konstruktor uproszczony
+    public Silnik(String producent, String model, int maxObroty) {
+        this(producent, model, maxObroty, 150, 5000);
+    }
+
     public void uruchom() {
         wlaczony = true;
-        obroty = 800; // Wolne obroty
+        obroty = 800;
     }
 
     public void zatrzymaj() {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.przyklad.samochodgui.DodajSamochodController"
+      spacing="10" alignment="CENTER">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Model:" />
+    <TextField fx:id="modelTextField" />
+
+    <Label text="Numer rejestracyjny:" />
+    <TextField fx:id="registrationTextField" />
+
+    <Label text="Waga:" />
+    <TextField fx:id="weightTextField" />
+
+    <Label text="Prędkość maksymalna:" />
+    <TextField fx:id="speedTextField" />
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="confirmButton" text="Zatwierdź" onAction="#onConfirmButton"/>
+        <Button fx:id="cancelButton" text="Anuluj" onAction="#onCancelButton"/>
+    </HBox>
+
+</VBox>
