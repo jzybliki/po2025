@@ -3,7 +3,7 @@ package org.przyklad.samochod;
 public class SkrzyniaBiegow extends Komponent {
     private int aktualnyBieg;
     private int iloscBiegow;
-    private double aktualnePrzelozenie; // Zgodnie z diagramem
+    private double aktualnePrzelozenie;
 
     public SkrzyniaBiegow(String producent, String model, int iloscBiegow, double waga, double cena) {
         super(producent, model, waga, cena);

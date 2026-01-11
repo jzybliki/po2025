@@ -3,8 +3,8 @@ package org.przyklad.samochod;
 public class Komponent {
     private String producent;
     private String model;
-    private double waga; // Dodano zgodnie z diagramem
-    private double cena; // Dodano zgodnie z diagramem
+    private double waga;
+    private double cena;
 
     public Komponent(String producent, String model, double waga, double cena) {
         this.producent = producent;
