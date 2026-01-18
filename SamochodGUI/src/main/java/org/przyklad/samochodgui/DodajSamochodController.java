@@ -18,36 +18,40 @@ public class DodajSamochodController {
 
     private HelloController mainController;
 
+    // Muszę mieć dostęp do głównego kontrolera, żeby wrzucić tam nowe auto
     public void setMainController(HelloController mainController) {
         this.mainController = mainController;
     }
 
     @FXML
     private void onConfirmButton() {
+        // Pobranie tekstów z pól formularza
         String model = modelTextField.getText();
         String registration = registrationTextField.getText();
         double weight;
         int speed;
 
         try {
+            // Parsowanie wartości liczbowych z obsługą błędów
             weight = Double.parseDouble(weightTextField.getText());
             speed = Integer.parseInt(speedTextField.getText());
 
+            // Walidacja czy pola tekstowe nie są puste
             if(model.isEmpty() || registration.isEmpty()) throw new Exception("Puste pola");
 
         } catch (Exception e) {
-            // W razie błędu, używamy metody z głównego kontrolera (jeśli dostępna)
+            // Wyświetlenie błędu w GUI, jeśli dane są niepoprawne
             if (mainController != null) {
                 mainController.pokazBlad("Niepoprawne dane! Sprawdź liczby i puste pola.");
             } else {
                 System.out.println("Błąd danych.");
             }
-            return;
+            return; // Przerywamy działanie metody, nie zamykamy okna
         }
 
-        // Tworzymy NOWY obiekt samochodu (wątek uruchomi się w konstruktorze)
+        // Tworzę standardowe podzespoły (generic), bo formularz jest uproszczony
         Samochod noweAuto = new Samochod(
-                registration, model, speed,
+                registration, model, speed, weight,
                 new Silnik("Generic", "Standard", 6000),
                 new SkrzyniaBiegow("Generic", "5-Speed", 5),
                 new Sprzeglo("Generic", "Std"),
@@ -58,7 +62,7 @@ public class DodajSamochodController {
         if (mainController != null) {
             mainController.dodajSamochod(noweAuto);
         }
-
+        // Zamknięcie okna dodawania po pomyślnym zatwierdzeniu
         Stage stage = (Stage) confirmButton.getScene().getWindow();
         stage.close();
     }

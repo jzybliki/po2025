@@ -1,6 +1,7 @@
 package org.przyklad.samochod;
 
 public class Pozycja {
+    // Współrzędne na mapie
     private double x;
     private double y;
 
@@ -16,6 +17,7 @@ public class Pozycja {
         this.y = y;
     }
 
+    // Przesuwanie o wektor ruchu obliczony w wątku Samochodu
     public void aktualizujPozycje(double deltaX, double deltaY) {
         this.x += deltaX;
         this.y += deltaY;

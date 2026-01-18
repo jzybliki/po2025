@@ -3,6 +3,7 @@ package org.przyklad.samochod;
 import java.util.ArrayList;
 import java.util.List;
 
+// Dziedziczy po Thread -> to jest ten osobny wątek do jazdy
 public class Samochod extends Thread {
     // Pola komponentów
     private Silnik silnik;
@@ -23,7 +24,7 @@ public class Samochod extends Thread {
     // Lista obserwatorów (GUI)
     private List<Listener> listeners = new ArrayList<>();
 
-    public Samochod(String nrRejest, String model, int predkoscMax,
+    public Samochod(String nrRejest, String model, int predkoscMax, double wagaPodstawowa,
                     Silnik silnik, SkrzyniaBiegow skrzynia, Sprzeglo sprzeglo, Pozycja pozycja) {
         this.nrRejest = nrRejest;
         this.model = model;
@@ -34,7 +35,7 @@ public class Samochod extends Thread {
         this.sprzeglo = sprzeglo;
         this.pozycja = pozycja;
 
-        this.wagaCalkowita = silnik.getWaga() + skrzynia.getWaga() + sprzeglo.getWaga() + 800;
+        this.wagaCalkowita = silnik.getWaga() + skrzynia.getWaga() + sprzeglo.getWaga() + wagaPodstawowa;
 
         // Uruchomienie wątku od razu po stworzeniu auta
         start();
@@ -49,6 +50,7 @@ public class Samochod extends Thread {
         listeners.remove(listener);
     }
 
+    // Daj znać GUI, że coś się zmieniło
     private void notifyListeners() {
         for (Listener listener : listeners) {
             listener.update();
@@ -63,15 +65,14 @@ public class Samochod extends Thread {
 
     @Override
     public void run() {
-        double deltat = 0.1; // Krok czasowy (s)
+        double deltat = 0.0166; // Krok czasowy (s), 60 FPS
 
         while (aktywny) {
             try {
-                // Opóźnienie symulacji (100ms)
-                Thread.sleep(100);
+                Thread.sleep(16); // Symulacja czasu rzeczywistego
 
-                // Jeśli mamy cel i silnik jest włączony (uproszczony warunek z instrukcji, można dodać sprawdzanie biegu itp.)
-                if (cel != null && silnik.getObroty() > 0) {
+                // Warunki jazdy: jest cel, silnik chodzi, sprzęgło puszczone
+                if (cel != null && silnik.getObroty() > 0 && !sprzeglo.getStanSprzegla()) {
                     double dx = cel.getX() - pozycja.getX();
                     double dy = cel.getY() - pozycja.getY();
                     double odleglosc = Math.sqrt(dx*dx + dy*dy);
@@ -87,7 +88,7 @@ public class Samochod extends Thread {
 
                         pozycja.aktualizujPozycje(moveX, moveY);
 
-                        // Powiadom GUI o zmianie
+                        // Powiadom GUI o zmianie, odświeżenie mapy
                         notifyListeners();
                     } else {
                         // Dojechaliśmy
@@ -108,8 +109,22 @@ public class Samochod extends Thread {
     public void wlacz() { silnik.uruchom(); notifyListeners(); }
     public void wylacz() { silnik.zatrzymaj(); skrzynia.zerujBieg(); notifyListeners(); }
 
-    public void zwiekszBieg() { if(sprzeglo.getStanSprzegla()) { skrzynia.zwiekszBieg(); notifyListeners(); } }
-    public void zmniejszBieg() { if(sprzeglo.getStanSprzegla()) { skrzynia.zmniejszBieg(); notifyListeners(); } }
+    // Zmiana biegów z WALIDACJĄ (rzuca wyjątek jak brak sprzęgła)
+    public void zwiekszBieg() throws SamochodException {
+        if (!sprzeglo.getStanSprzegla()) {
+            throw new SamochodException("Nie można zmienić biegu bez wciśniętego sprzęgła!");
+        }
+        skrzynia.zwiekszBieg();
+        notifyListeners();
+    }
+    public void zmniejszBieg() throws SamochodException {
+        if (!sprzeglo.getStanSprzegla()) {
+            throw new SamochodException("Nie można zmienić biegu bez wciśniętego sprzęgła!");
+        }
+        skrzynia.zmniejszBieg();
+        notifyListeners();
+    }
+    // Gazowanie
     public void zwiekszObroty() { silnik.zwiekszObroty(); notifyListeners(); }
     public void zmniejszObroty() { silnik.zmniejszObroty(); notifyListeners(); }
 

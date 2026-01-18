@@ -1,6 +1,7 @@
 package org.przyklad.samochod;
 
 public class Sprzeglo extends Komponent {
+    // true = wciśnięte, false = puszczone
     private boolean stanSprzegla;
 
     public Sprzeglo(String producent, String model, double waga, double cena) {
@@ -15,5 +16,5 @@ public class Sprzeglo extends Komponent {
 
     public void wcisnij() { stanSprzegla = true; }
     public void zwolnij() { stanSprzegla = false; }
-    public boolean getStanSprzegla() { return stanSprzegla; }
+    public boolean getStanSprzegla() { return stanSprzegla; } // żeby sprawdzić przy zmianie biegu
 }

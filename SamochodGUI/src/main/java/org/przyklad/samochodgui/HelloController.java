@@ -16,17 +16,20 @@ import org.przyklad.samochod.*;
 
 import java.io.IOException;
 
-public class HelloController implements Listener { // Implementacja Listenera
+// Główny "mózg" GUI. Implementuje Listener, żeby reagować na zmiany w samochodzie
+public class HelloController implements Listener {
 
     // Lista aut
     private ObservableList<Samochod> listaSamochodow = FXCollections.observableArrayList();
+    private Samochod aktualnySamochod;
 
     // GUI Elementy
     @FXML private ComboBox<Samochod> carComboBox; // Zmiana typu na <Samochod>
-    @FXML private Button addNewButton;
-    @FXML private Button deleteButton; // Przycisk usuwania (dodaj fx:id="deleteButton" w FXML jeśli nie masz)
+    @FXML private Button addNewButton; // dodawanie
+    @FXML private Button deleteButton; // Przycisk usuwania
+    @FXML private ImageView carImageView;
 
-    // Panel mapy (konieczne nadanie fx:id="mapaPanel" w FXML dla środkowego AnchorPane)
+    // Panel mapy
     @FXML private Pane mapaPanel;
 
     // Pola tekstowe
@@ -34,7 +37,6 @@ public class HelloController implements Listener { // Implementacja Listenera
     @FXML private TextField registrationTextField;
     @FXML private TextField weightTextField;
     @FXML private TextField speedTextField;
-
     @FXML private TextField gearboxNameTextField;
     @FXML private TextField gearTextField;
     @FXML private TextField engineNameTextField;
@@ -53,16 +55,13 @@ public class HelloController implements Listener { // Implementacja Listenera
     @FXML private Button throttleUpButton;
     @FXML private Button throttleDownButton;
 
-    @FXML private ImageView carImageView;
-
-    private Samochod aktualnySamochod;
-
     @FXML
     public void initialize() {
         System.out.println("HelloController initialized");
+        // Blokada edycji pól - tylko do odczytu
         setFieldsNotEditable();
 
-        // 1. Ładowanie ikony
+        // Ładowanie obrazka auta
         try {
             if (getClass().getResource("car-icon.png") != null) {
                 Image carImage = new Image(getClass().getResource("car-icon.png").toExternalForm());
@@ -70,7 +69,7 @@ public class HelloController implements Listener { // Implementacja Listenera
                     carImageView.setImage(carImage);
                     carImageView.setFitWidth(150);
                     carImageView.setFitHeight(90);
-                    carImageView.setLayoutY(30);
+                    carImageView.setLayoutY(10);
                     carImageView.setTranslateX(0);
                 }
             }
@@ -78,57 +77,78 @@ public class HelloController implements Listener { // Implementacja Listenera
             System.out.println("Brak ikony.");
         }
 
-        // 2. Obsługa ComboBox
+        // 2. Obsługa wyboru z listy
         carComboBox.setItems(listaSamochodow);
         carComboBox.setOnAction(event -> {
             Samochod wybrany = carComboBox.getSelectionModel().getSelectedItem();
             if (wybrany != null) {
                 // Odpinamy listener od starego auta
                 if(aktualnySamochod != null) aktualnySamochod.removeListener(this);
-
                 aktualnySamochod = wybrany;
-
                 // Przypinamy listener do nowego
                 aktualnySamochod.addListener(this);
                 refresh();
             }
         });
 
-        // 3. Dodanie przykładowych aut na start
-        Samochod s1 = new Samochod("KRA 1234", "Fiat 126p", 120,
+        // Dodanie przykładowych aut na start
+        Samochod s1 = new Samochod("KRA 1234", "Fiat 126p", 120, 800.0,
                 new Silnik("Fiat", "650cc", 5000, 100, 1000),
                 new SkrzyniaBiegow("Fiat", "Manual 4", 4, 40, 500),
                 new Sprzeglo("Valeo", "Std", 10, 200),
                 new Pozycja(20, 50));
 
         dodajSamochod(s1);
+        aktualnySamochod = s1; // Ustawiamy Fiata jako aktualnie wybrane auto
+        aktualnySamochod.addListener(this); // Rejestrujemy kontroler jako słuchacza
+        refresh();
 
-        // 4. Obsługa przycisków
+        // Podpinanie przycisków
+
+        // dodawanie/usuwanie
         if (addNewButton != null) addNewButton.setOnAction(e -> openAddCarWindow());
-
-        // Obsługa usuwania
         if (deleteButton != null) deleteButton.setOnAction(e -> usunSamochod());
 
-        // Sterowanie
+        // start/stop silnika
         if (startButton != null) startButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.wlacz(); });
         if (stopButton != null) stopButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.wylacz(); });
 
-        if (gearUpButton != null) gearUpButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.zwiekszBieg(); });
-        if (gearDownButton != null) gearDownButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.zmniejszBieg(); });
+        // Biegi(z obsługą wyjątków)
+        if (gearUpButton != null) gearUpButton.setOnAction(e -> {
+            if (aktualnySamochod != null) {
+                try {
+                    aktualnySamochod.zwiekszBieg(); // To teraz może rzucić błąd
+                } catch (SamochodException ex) {
+                    // Tutaj używamy Twojej gotowej metody do wyświetlania błędów
+                    pokazBlad(ex.getMessage());
+                }
+            }
+        });
 
+        if (gearDownButton != null) gearDownButton.setOnAction(e -> {
+            if (aktualnySamochod != null) {
+                try {
+                    aktualnySamochod.zmniejszBieg();
+                } catch (SamochodException ex) {
+                    pokazBlad(ex.getMessage());
+                }
+            }
+        });
+
+        // Sprzęgło
         if (clutchPressButton != null) clutchPressButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.getSprzeglo().wcisnij(); });
         if (clutchReleaseButton != null) clutchReleaseButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.getSprzeglo().zwolnij(); });
 
+        //Gaz
         if (throttleUpButton != null) throttleUpButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.zwiekszObroty(); });
         if (throttleDownButton != null) throttleDownButton.setOnAction(e -> { if(aktualnySamochod!=null) aktualnySamochod.zmniejszObroty(); });
 
-        // 5. OBSŁUGA KLIKNIĘCIA NA MAPĘ (JAZDA)
+        // klikanie w mapę - jedź do punktu
         if (mapaPanel != null) {
             mapaPanel.setOnMouseClicked(event -> {
                 if (aktualnySamochod != null) {
                     double x = event.getX();
                     double y = event.getY();
-                    // Korekta, by środek auta jechał do punktu (opcjonalne)
                     aktualnySamochod.jedzDo(new Pozycja(x, y));
                 }
             });
@@ -138,10 +158,11 @@ public class HelloController implements Listener { // Implementacja Listenera
     // Metoda z interfejsu Listener
     @Override
     public void update() {
-        // Zapewnienie, że aktualizacja GUI wykona się w wątku JavaFX Application Thread
+        // Zapewnienie, że aktualizacja GUI wykona się w wątku JavaFX, a nie wątku Samochód
         Platform.runLater(this::refresh);
     }
 
+    // Odświeżanie wszystkich pól tekstowych
     private void refresh() {
         if (aktualnySamochod == null) return;
 
@@ -176,6 +197,7 @@ public class HelloController implements Listener { // Implementacja Listenera
         }
     }
 
+    // Żeby nie dało się kliknąć czegoś, czego nie wolno (np. Start jak silnik już chodzi)
     private void aktualizujPrzyciski() {
         boolean silnikOn = aktualnySamochod.getSilnik().getObroty() > 0;
         boolean sprzegloOn = aktualnySamochod.getSprzeglo().getStanSprzegla();
@@ -188,7 +210,7 @@ public class HelloController implements Listener { // Implementacja Listenera
         if(clutchReleaseButton != null) clutchReleaseButton.setDisable(!sprzegloOn);
     }
 
-    // --- ZARZĄDZANIE LISTĄ AUT ---
+    // Zarządzanie listą aut
 
     public void dodajSamochod(Samochod s) {
         listaSamochodow.add(s);
@@ -241,6 +263,22 @@ public class HelloController implements Listener { // Implementacja Listenera
 
     private void setFieldsNotEditable() {
         if(modelTextField != null) modelTextField.setEditable(false);
-        // ... (reszta pól jak wcześniej)
+        // Pola samochodu
+        if(modelTextField != null) modelTextField.setEditable(false);
+        if(registrationTextField != null) registrationTextField.setEditable(false);
+        if(weightTextField != null) weightTextField.setEditable(false);
+        if(speedTextField != null) speedTextField.setEditable(false);
+
+        // Pola silnika
+        if(engineNameTextField != null) engineNameTextField.setEditable(false);
+        if(rpmTextField != null) rpmTextField.setEditable(false);
+
+        // Pola skrzyni biegów
+        if(gearboxNameTextField != null) gearboxNameTextField.setEditable(false);
+        if(gearTextField != null) gearTextField.setEditable(false);
+
+        // Pola sprzęgła
+        if(clutchNameTextField != null) clutchNameTextField.setEditable(false);
+        if(clutchStateTextField != null) clutchStateTextField.setEditable(false);
     }
 }

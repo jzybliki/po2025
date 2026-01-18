@@ -19,7 +19,7 @@ public class Silnik extends Komponent {
 
     public void uruchom() {
         wlaczony = true;
-        obroty = 800;
+        obroty = 800; // wolne obroty, bieg jałowy
     }
 
     public void zatrzymaj() {
@@ -28,11 +28,11 @@ public class Silnik extends Komponent {
     }
 
     public void zwiekszObroty() {
-        if (wlaczony && obroty < maxObroty) obroty += 500;
+        if (wlaczony && obroty < maxObroty) obroty += 500; // Blokada, żeby nie przekręcić licznika
     }
 
     public void zmniejszObroty() {
-        if (wlaczony && obroty > 800) obroty -= 500;
+        if (wlaczony && obroty > 800) obroty -= 500; // Blokada, żeby silnik nie zgasł poniżej 800
     }
 
     public int getObroty() { return obroty; }
